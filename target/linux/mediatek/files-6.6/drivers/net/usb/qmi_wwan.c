@@ -564,7 +564,7 @@ static const u8 buggy_fw_addr[ETH_ALEN] = {0x00, 0xa0, 0xc6, 0x00, 0x00, 0x00};
 static int qmi_wwan_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 {
 	struct qmi_wwan_state *info = (void *)&dev->data;
-	bool rawip = info->flags & QMI_WWAN_FLAG_RAWIP;
+	bool rawip = 0;
 	__be16 proto;
 
 	/* This check is no longer done by usbnet */
@@ -613,6 +613,7 @@ static int qmi_wwan_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 	skb_reset_mac_header(skb);
 	eth_hdr(skb)->h_proto = proto;
 	eth_zero_addr(eth_hdr(skb)->h_source);
+	memcpy(eth_hdr(skb)->h_source, default_modem_addr, ETH_ALEN);
 fix_dest:
 	memcpy(eth_hdr(skb)->h_dest, dev->net->dev_addr, ETH_ALEN);
 	return 1;
@@ -1450,7 +1451,9 @@ static const struct usb_device_id products[] = {
 	{QMI_QUIRK_SET_DTR(0x1546, 0x1342, 4)},	/* u-blox LARA-L6 */
 	{QMI_QUIRK_SET_DTR(0x33f8, 0x0104, 4)}, /* Rolling RW101 RMNET */
 	{QMI_FIXED_INTF(0x2dee, 0x4d22, 5)},    /* MeiG Smart SRM825L */
-
+	{QMI_FIXED_INTF(0x2077, 0x2002, 4)},	/* T&W TW04C */
+	{QMI_FIXED_INTF(0x2077, 0x2003, 4)},	/* T&W TW12G */
+	{QMI_FIXED_INTF(0x2077, 0x2004, 4)},	/* T&W TW510M */
 	/* 4. Gobi 1000 devices */
 	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
 	{QMI_GOBI1K_DEVICE(0x03f0, 0x1f1d)},	/* HP un2400 Gobi Modem Device */
